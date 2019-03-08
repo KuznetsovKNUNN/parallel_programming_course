@@ -9,6 +9,7 @@
 #include <limits>
 #include <random>
 #include <vector>
+#include <utility>
 
 void print_data(const std::vector<unsigned int>& data, size_t n = 10) {
     if (data.size() < n) return;
@@ -33,8 +34,7 @@ static std::vector<unsigned int> generate_data(size_t size) {
     return data;
 }
 
-void create_counters(unsigned int* data,
-                     std::vector<std::vector<unsigned int>> counters,
+void create_counters(unsigned int* data, unsigned int* counters,
                      size_t size) {
     unsigned char* byte_ptr = reinterpret_cast<unsigned char*>(data);
     unsigned char* data_end = reinterpret_cast<unsigned char*>(data + size);
@@ -42,11 +42,11 @@ void create_counters(unsigned int* data,
     size_t i;
     while (byte_ptr != data_end)
         for (i = 0; i < sizeof(int); i++)
-            counters[i][*byte_ptr++]++;
+            counters[256 * i + *byte_ptr++]++;
 }
 
 void byte_sort(unsigned int* data, unsigned int* temp,
-               std::vector<unsigned int> counter, size_t byte, size_t size) {
+               unsigned int* counter, size_t byte, size_t size) {
     unsigned char* byte_ptr;
     unsigned int c = 0;
 
@@ -67,16 +67,18 @@ void byte_sort(unsigned int* data, unsigned int* temp,
 // для сортировки по каждому байту используется сортировка подсчетом
 void radix_sort(unsigned int* data, size_t size) {
     unsigned int* temp = new unsigned int[size];
-    std::vector<std::vector<unsigned int>> counters(
-                sizeof(int), std::vector<unsigned int>(256, 0));
+    unsigned int* counters = new unsigned int[sizeof(int) * 256];
+    unsigned int* counter;
 
     create_counters(data, counters, size);
     for (size_t i = 0; i < sizeof(int); ++i) {
-        byte_sort(data, temp, counters[i], i, size);
+        counter = counters + 256 * i;
+        byte_sort(data, temp, counter, i, size);
         std::swap(data, temp);
     }
 
     delete[] temp;
+    delete[] counters;
 }
 
 int main(int argc, char* argv[]) {
