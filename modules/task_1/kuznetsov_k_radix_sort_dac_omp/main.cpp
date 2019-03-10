@@ -38,10 +38,12 @@ void create_counters(unsigned int* data, unsigned int* counters,
                      size_t size) {
     unsigned char* byte_ptr = reinterpret_cast<unsigned char*>(data);
     unsigned char* data_end = reinterpret_cast<unsigned char*>(data + size);
+    for (size_t i = 0; i < sizeof(int) * 256; ++i)
+        counters[i] = 0;
 
     size_t i;
     while (byte_ptr != data_end)
-        for (i = 0; i < sizeof(int); i++)
+        for (i = 0; i < sizeof(int); ++i)
             counters[256 * i + *byte_ptr++]++;
 }
 
@@ -58,7 +60,7 @@ void byte_sort(unsigned int* data, unsigned int* temp,
     }
 
     byte_ptr = reinterpret_cast<unsigned char*>(data) + byte;
-    for (size_t i = 0; i < size; i++, byte_ptr += sizeof(int))
+    for (size_t i = 0; i < size; ++i, byte_ptr += sizeof(int))
         temp[counter[*byte_ptr]++] = data[i];
 }
 
@@ -81,6 +83,14 @@ void radix_sort(unsigned int* data, size_t size) {
     delete[] counters;
 }
 
+bool check_sorting(unsigned int* data, size_t size) {
+    for (size_t i = 0; i < size - 1; ++i)
+        if (data[i] > data[i + 1])
+            return false;
+
+    return true;
+}
+
 int main(int argc, char* argv[]) {
     size_t data_size = 1000000;
     double t1, t2;
@@ -91,6 +101,9 @@ int main(int argc, char* argv[]) {
     t2 = omp_get_wtime();
     std::cout << "non-parallel time = " << t2 - t1 << std::endl;
     print_data(data);
+
+    if (check_sorting(data.data(), data_size))
+        std::cout << "correct" << std::endl;
 
     return 0;
 }
