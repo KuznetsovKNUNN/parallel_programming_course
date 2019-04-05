@@ -126,8 +126,8 @@ void dac_radix_sort(unsigned int* data, size_t size, size_t num_threads) {
     omp_set_num_threads(static_cast<int>(num_threads));
 
     #pragma omp parallel for schedule(dynamic, 1)
-    for (size_t i = 0; i < num_threads; ++i)
-        radix_sort(data + i*portion, portion);
+    for (int i = 0; i < static_cast<int>(num_threads); ++i)
+        radix_sort(data + i*static_cast<int>(portion), portion);
 
     // слияние "Разделяй и властвуй"
     size_t k_max = static_cast<size_t>(std::log2(num_threads));
@@ -156,12 +156,12 @@ void dac_radix_sort(unsigned int* data, size_t size, size_t num_threads) {
             }
 
             #pragma omp parallel for schedule(dynamic, 1)
-            for (size_t i = 0; i <= num_threads - 1; ++i)
+            for (int i = 0; i <= static_cast<int>(num_threads) - 1; ++i)
                 merge(curr + l1[i], curr + portion + l2[i],
                     temp + l1[i] + l2[i], r1[i] - l1[i], r2[i] - l2[i]);
 
             #pragma omp parallel for
-            for (size_t i = 0; i < portion * 2; ++i)
+            for (int i = 0; i < static_cast<int>(portion) * 2; ++i)
                 curr[i] = temp[i];
 
             delete[] temp;
