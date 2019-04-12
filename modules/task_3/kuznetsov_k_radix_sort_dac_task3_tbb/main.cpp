@@ -12,6 +12,10 @@
 #include <vector>
 #include <utility>
 
+// for windows header which defines a minmax macros,
+// causing problems in lines 31/32
+#define NOMINMAX
+
 void print_data(const std::vector<unsigned int>& data, size_t n = 10) {
     if (data.size() < n) return;
 
