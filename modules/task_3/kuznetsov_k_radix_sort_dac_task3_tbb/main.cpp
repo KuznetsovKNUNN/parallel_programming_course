@@ -12,10 +12,6 @@
 #include <vector>
 #include <utility>
 
-// for windows header which defines a minmax macros,
-// causing problems in lines 31/32
-#define NOMINMAX
-
 void print_data(const std::vector<unsigned int>& data, size_t n = 10) {
     if (data.size() < n) return;
 
@@ -28,8 +24,8 @@ static std::vector<unsigned int> generate_data(size_t size) {
     using value_type = unsigned int;
 
     static std::uniform_int_distribution<value_type> distribution(
-                std::numeric_limits<value_type>::min(),
-                std::numeric_limits<value_type>::max());
+                (std::numeric_limits<value_type>::min)(),
+                (std::numeric_limits<value_type>::max)());
     static std::default_random_engine generator;
 
     std::vector<value_type> data(size);
